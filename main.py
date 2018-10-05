@@ -44,7 +44,7 @@ def show_score(screen, score):
         x_offset += IMAGES['digits'][digit].get_width()
 
 
-def game_over(screen, score):
+def game_over(screen, player, upper_pipes, lower_pipes, score):
     clock = pygame.time.Clock()
     message = pygame.image.load('./sprites/gameover.png')
     message_pos_x = (SCREENWIDTH - message.get_width()) / 2
@@ -58,6 +58,9 @@ def game_over(screen, score):
                 sys.exit()
         screen.blit(IMAGES['background'], (0, 0))
         screen.blit(IMAGES['base'], (0, BASEY))
+        screen.blit(player.image, player.rect)
+        upper_pipes.draw(screen)
+        lower_pipes.draw(screen)
         screen.blit(message, (message_pos_x, message_pos_y))
         show_score(screen, score)
         pygame.display.update()
@@ -123,16 +126,26 @@ def main():
                 if player.rect.y > -1 * player.image.get_height():
                     player.flap()
 
+        # update player position
+        # and animate wing flap
+        player.update(frames)
+
+        # update all pipes position in group
+        upper_pipes.update()
+        lower_pipes.update()
+
         # check if player crashed into the ground
-        if player.rect.y > BASEY - player.image.get_height():
-            game_over(screen, score)
+        if player.rect.y >= BASEY - player.image.get_height():
+            game_over(screen, player, upper_pipes, lower_pipes, score)
+
         player_pos_x_mid = player.rect.x + player.image.get_width() / 2
+        # loop through every pipes
         for upipe, lpipe in zip(upper_pipes, lower_pipes):
             # check if player crashed into the pipes
-            # if player.pixel_collide(upipe) or player.pixel_collide(lpipe):
-            #     game_over(screen, score)
-            if pygame.sprite.collide_rect(player, upipe) or pygame.sprite.collide_rect(player, lpipe):
-                game_over(screen, score)
+            if player.pixel_collide(upipe) or player.pixel_collide(lpipe):
+                game_over(screen, player, upper_pipes, lower_pipes, score)
+            # if pygame.sprite.collide_rect(player, upipe) or pygame.sprite.collide_rect(player, lpipe):
+            #     game_over(screen, player, upper_pipes, lower_pipes, score)
             # remove pipes if it moves off-screen
             if upipe.rect.x < -upipe.image.get_width():
                 upipe.kill()
@@ -146,14 +159,6 @@ def main():
             pipe_pos_x_mid = upipe.rect.x + upipe.image.get_width() / 2
             if pipe_pos_x_mid <= player_pos_x_mid < pipe_pos_x_mid + 3:
                 score += 1
-
-        # update player position
-        # and animate wing flap
-        player.update(frames)
-
-        # update all pipes position in group
-        upper_pipes.update()
-        lower_pipes.update()
 
         # put images on screen
         screen.blit(IMAGES['background'], (0, 0))
