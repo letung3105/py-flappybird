@@ -9,14 +9,10 @@ PLAYER_Y_VEL_FLAP = -9
 
 class Player(CustomSprite):
     """ player class support animations and player's actions """
-    def __init__(self):
+    def __init__(self, images):
         super().__init__()
         # images for animation
-        self.images = (
-            pygame.image.load("./sprites/bluebird-upflap.png").convert_alpha(),
-            pygame.image.load("./sprites/bluebird-midflap.png").convert_alpha(),
-            pygame.image.load("./sprites/bluebird-downflap.png").convert_alpha(),
-        )
+        self.images = images
         # cycle([0,1,2,1]) = 0 -> 1 -> 2 -> 1 -> 0 -> 1 -> 2 -> 1 -> 0 -> ...
         self.animation_pattern = cycle([0, 1, 2, 1])
 

@@ -2,6 +2,7 @@ import pygame
 import pygame.locals
 import random
 import sys
+from helpers import load_images
 from player import Player
 from pipe import Pipe
 
@@ -18,19 +19,6 @@ BASEY = SCREENHEIGHT * 0.8
 PIPEGAPSIZE = 100
 
 IMAGES = {}  # contains all images' data used for the game
-
-
-def get_random_pipes(pipe_pos_x=SCREENWIDTH + 10):
-    """ generate a pair of pipes with random y-position """
-    # y-position of the gap
-    gap_pos_y = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
-    # shift the gap to be closer to ground
-    gap_pos_y += int(BASEY * 0.2)
-    pipe_height = IMAGES['upipe'].get_height()
-    return (
-        Pipe(IMAGES['upipe'], pipe_pos_x, gap_pos_y - pipe_height),
-        Pipe(IMAGES['lpipe'], pipe_pos_x, gap_pos_y + PIPEGAPSIZE)
-    )
 
 
 def show_score(screen, score):
@@ -55,7 +43,7 @@ def game_over(screen, player, upper_pipes, lower_pipes, score):
     clock = pygame.time.Clock()
     message = pygame.image.load('./sprites/gameover.png')
     message_pos_x = (SCREENWIDTH - message.get_width()) / 2
-    message_pos_y = (SCREENHEIGHT - message.get_height()) / 2
+    message_pos_y = (SCREENHEIGHT - message.get_height()) / 3
     while True:
         # Press esc to quit
         for event in pygame.event.get():
@@ -65,17 +53,31 @@ def game_over(screen, player, upper_pipes, lower_pipes, score):
                 pygame.quit()
                 sys.exit()
         screen.blit(IMAGES['background'], (0, 0))
-        screen.blit(IMAGES['base'], (0, BASEY))
         screen.blit(player.image, player.rect)
         upper_pipes.draw(screen)
         lower_pipes.draw(screen)
+        screen.blit(IMAGES['base'], (0, BASEY))
         screen.blit(message, (message_pos_x, message_pos_y))
         show_score(screen, score)
         pygame.display.update()
         clock.tick(FPS)
 
 
+def get_random_pipes(pipe_pos_x=SCREENWIDTH + 10):
+    """ generate a pair of pipes with random y-position """
+    # y-position of the gap
+    gap_pos_y = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
+    # shift the gap to be closer to ground
+    gap_pos_y += int(BASEY * 0.2)
+    pipe_height = IMAGES['upipe'].get_height()
+    return (
+        Pipe(IMAGES['upipe'], pipe_pos_x, gap_pos_y - pipe_height),
+        Pipe(IMAGES['lpipe'], pipe_pos_x, gap_pos_y + PIPEGAPSIZE)
+    )
+
+
 def main():
+    global IMAGES
     # initialize pygame
     pygame.init()
     # set game's screen size
@@ -86,29 +88,8 @@ def main():
     # current frame in 1 sec
     frames = 1
 
-    # background and base image
-    IMAGES['background'] = pygame.image.load('./sprites/background-day.png').convert_alpha()
-    IMAGES['base'] = pygame.image.load('./sprites/base.png').convert_alpha()
-
-    # upper and lower pipes images
-    IMAGES['upipe'] = pygame.transform.rotate(
-        pygame.image.load('./sprites/pipe-green.png').convert_alpha(), 180
-    )
-    IMAGES['lpipe'] = pygame.image.load('./sprites/pipe-green.png').convert_alpha()
-
-    # score's digits images
-    IMAGES['digits'] = (
-        pygame.image.load('./sprites/0.png').convert_alpha(),
-        pygame.image.load('./sprites/1.png').convert_alpha(),
-        pygame.image.load('./sprites/2.png').convert_alpha(),
-        pygame.image.load('./sprites/3.png').convert_alpha(),
-        pygame.image.load('./sprites/4.png').convert_alpha(),
-        pygame.image.load('./sprites/5.png').convert_alpha(),
-        pygame.image.load('./sprites/6.png').convert_alpha(),
-        pygame.image.load('./sprites/7.png').convert_alpha(),
-        pygame.image.load('./sprites/8.png').convert_alpha(),
-        pygame.image.load('./sprites/9.png').convert_alpha(),
-    )
+    # load all images
+    IMAGES = load_images()
 
     # initial pipes
     first_pipes = get_random_pipes()
@@ -119,10 +100,10 @@ def main():
     lower_pipes = pygame.sprite.Group(first_pipes[1], second_pipes[1])
 
     # create new player
-    player = Player()
+    player = Player(IMAGES['player'])
     # set player's initial position
-    player.rect.x = int(SCREENWIDTH / 3) - player.image.get_width() / 2
-    player.rect.y = int(SCREENHEIGHT / 2) - player.image.get_height() / 2
+    player.rect.x = int(SCREENWIDTH / 4 - player.image.get_width() / 2)
+    player.rect.y = int((SCREENHEIGHT - player.image.get_height()) / 2)
 
     # player's score
     score = 0
@@ -136,18 +117,10 @@ def main():
                 if player.rect.y > -1 * player.image.get_height():
                     player.flap()
 
-        # update player sprite
-        player.update(frames)
-
-        # update all pipes sprite
-        upper_pipes.update()
-        lower_pipes.update()
-
         # check if player crashed into the ground
         if player.rect.y >= BASEY - player.image.get_height():
             game_over(screen, player, upper_pipes, lower_pipes, score)
 
-        player_pos_x_mid = player.rect.x + player.image.get_width() / 2
         # loop through every pipes
         for upipe, lpipe in zip(upper_pipes, lower_pipes):
             # check if player crashed into the pipes
@@ -162,21 +135,27 @@ def main():
                 upipe.kill()
             if lpipe.rect.x < -lpipe.image.get_width():
                 lpipe.kill()
-            if 0 < upipe.rect.x < 3:
+            if 0 < upipe.rect.x < 4:
                 pipes = get_random_pipes()
                 upper_pipes.add(pipes[0])
                 lower_pipes.add(pipes[1])
             # update score if player passed a pipe
-            pipe_pos_x_mid = upipe.rect.x + upipe.image.get_width() / 2
-            if pipe_pos_x_mid <= player_pos_x_mid < pipe_pos_x_mid + 3:
+            if upipe.rect.centerx <= player.rect.centerx < upipe.rect.centerx + 3:
                 score += 1
+
+        # update player sprite
+        player.update(frames)
+
+        # update all pipes sprite
+        upper_pipes.update()
+        lower_pipes.update()
 
         # put images on screen
         screen.blit(IMAGES['background'], (0, 0))
-        screen.blit(IMAGES['base'], (0, BASEY))
         screen.blit(player.image, player.rect)
         upper_pipes.draw(screen)
         lower_pipes.draw(screen)
+        screen.blit(IMAGES['base'], (0, BASEY))
 
         # put digits on screen based on score
         show_score(screen, score)
