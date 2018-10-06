@@ -21,49 +21,7 @@ PIPEGAPSIZE = 100
 IMAGES = {}  # contains all images' data used for the game
 
 
-def show_score(screen, score):
-    """ turns numeric score into sprites on screen """
-    digits = [int(x) for x in str(score)]
-    total_width = 0
-
-    # loop through all digits
-    # to calculate the total length of the number
-    for digit in digits:
-        total_width += IMAGES['digits'][digit].get_width()
-
-    # offset to center the number
-    x_offset = (SCREENWIDTH - total_width) / 2
-    for digit in digits:
-        screen.blit(IMAGES['digits'][digit], [x_offset, SCREENHEIGHT * 0.1])
-        x_offset += IMAGES['digits'][digit].get_width()
-
-
-def game_over(screen, player, upper_pipes, lower_pipes, score):
-    """ show game over scene """
-    clock = pygame.time.Clock()
-    message = pygame.image.load('./sprites/gameover.png')
-    message_pos_x = (SCREENWIDTH - message.get_width()) / 2
-    message_pos_y = (SCREENHEIGHT - message.get_height()) / 3
-    while True:
-        # Press esc to quit
-        for event in pygame.event.get():
-            if (event.type == pygame.locals.QUIT or
-                    (event.type == pygame.locals.KEYDOWN and
-                        event.key == pygame.locals.K_ESCAPE)):
-                pygame.quit()
-                sys.exit()
-        screen.blit(IMAGES['background'], (0, 0))
-        screen.blit(player.image, player.rect)
-        upper_pipes.draw(screen)
-        lower_pipes.draw(screen)
-        screen.blit(IMAGES['base'], (0, BASEY))
-        screen.blit(message, (message_pos_x, message_pos_y))
-        show_score(screen, score)
-        pygame.display.update()
-        clock.tick(FPS)
-
-
-def get_random_pipes(pipe_pos_x=SCREENWIDTH + 10):
+def get_random_pipes(pipe_pos_x=SCREENWIDTH+10):
     """ generate a pair of pipes with random y-position """
     # y-position of the gap
     gap_pos_y = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
@@ -102,8 +60,8 @@ def main():
     # create new player
     player = Player(IMAGES['player'])
     # set player's initial position
-    player.rect.x = int(SCREENWIDTH / 4 - player.image.get_width() / 2)
-    player.rect.y = int((SCREENHEIGHT - player.image.get_height()) / 2)
+    player.rect.x = int(SCREENWIDTH / 4 - player.rect.w / 2)
+    player.rect.y = int((SCREENHEIGHT - player.rect.h) / 2)
 
     # player's score
     score = 0
@@ -114,11 +72,11 @@ def main():
             if (evt.type == pygame.locals.KEYDOWN and
                     (evt.key == pygame.locals.K_SPACE or
                         evt.key == pygame.locals.K_UP)):
-                if player.rect.y > -1 * player.image.get_height():
+                if player.rect.y > -1 * player.rect.h:
                     player.flap()
 
         # check if player crashed into the ground
-        if player.rect.y >= BASEY - player.image.get_height():
+        if player.rect.bottom >= BASEY - 1:
             game_over(screen, player, upper_pipes, lower_pipes, score)
 
         # loop through every pipes
@@ -131,11 +89,12 @@ def main():
             # if pygame.sprite.collide_rect(player, upipe) or pygame.sprite.collide_rect(player, lpipe):
             #     game_over(screen, player, upper_pipes, lower_pipes, score)
             # remove pipes if it moves off-screen
-            if upipe.rect.x < -upipe.image.get_width():
+            if upipe.rect.x < -upipe.rect.w:
                 upipe.kill()
-            if lpipe.rect.x < -lpipe.image.get_width():
+            if lpipe.rect.x < -lpipe.rect.w:
                 lpipe.kill()
             if 0 < upipe.rect.x < 4:
+                print("New pipe")
                 pipes = get_random_pipes()
                 upper_pipes.add(pipes[0])
                 lower_pipes.add(pipes[1])
@@ -165,6 +124,48 @@ def main():
         if frames % 30 == 0:
             frames = 1
         # refresh screen at given FPS
+        pygame.display.update()
+        clock.tick(FPS)
+
+
+def show_score(screen, score):
+    """ turns numeric score into sprites on screen """
+    digits = [int(x) for x in str(score)]
+    total_width = 0
+
+    # loop through all digits
+    # to calculate the total length of the number
+    for digit in digits:
+        total_width += IMAGES['digits'][digit].get_width()
+
+    # offset to center the number
+    x_offset = (SCREENWIDTH - total_width) / 2
+    for digit in digits:
+        screen.blit(IMAGES['digits'][digit], [x_offset, SCREENHEIGHT * 0.1])
+        x_offset += IMAGES['digits'][digit].get_width()
+
+
+def game_over(screen, player, upper_pipes, lower_pipes, score):
+    """ show game over scene """
+    clock = pygame.time.Clock()
+    message = pygame.image.load('./sprites/gameover.png')
+    message_pos_x = (SCREENWIDTH - message.get_width()) / 2
+    message_pos_y = (SCREENHEIGHT - message.get_height()) / 3
+    while True:
+        # Press esc to quit
+        for event in pygame.event.get():
+            if (event.type == pygame.locals.QUIT or
+                    (event.type == pygame.locals.KEYDOWN and
+                        event.key == pygame.locals.K_ESCAPE)):
+                pygame.quit()
+                sys.exit()
+        screen.blit(IMAGES['background'], (0, 0))
+        screen.blit(player.image, player.rect)
+        upper_pipes.draw(screen)
+        lower_pipes.draw(screen)
+        screen.blit(IMAGES['base'], (0, BASEY))
+        screen.blit(message, (message_pos_x, message_pos_y))
+        show_score(screen, score)
         pygame.display.update()
         clock.tick(FPS)
 
