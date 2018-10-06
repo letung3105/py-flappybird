@@ -1,8 +1,12 @@
 import pygame
 from itertools import cycle
 
+# maximum downward velocity
 PLAYER_MAX_Y_VEL = 10
+# downward acceleration
+# value to increase velocity per frame
 PLAYER_Y_ACC = 1
+# velocity when flap
 PLAYER_Y_VEL_FLAP = -9
 
 
