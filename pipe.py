@@ -1,10 +1,10 @@
-from helpers import CustomSprite
+import pygame
 
 # number of pixel each pipe moves per frame
 PIPE_X_VEL = -4
 
 
-class Pipe(CustomSprite):
+class Pipe(pygame.sprite.Sprite):
     """ pipe inherits from """
     def __init__(self, image, pos_x, pos_y):
         super().__init__()

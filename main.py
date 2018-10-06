@@ -83,11 +83,11 @@ def main():
         for upipe, lpipe in zip(upper_pipes, lower_pipes):
             # check if player crashed into the pipes
             ## pixel bitmask collision
-            if player.pixel_collide(upipe) or player.pixel_collide(lpipe):
-                game_over(screen, player, upper_pipes, lower_pipes, score)
-            ## rect collision
-            # if pygame.sprite.collide_rect(player, upipe) or pygame.sprite.collide_rect(player, lpipe):
+            # if player.pixel_collide(upipe) or player.pixel_collide(lpipe):
             #     game_over(screen, player, upper_pipes, lower_pipes, score)
+            ## rect collision
+            if pygame.sprite.collide_rect(player, upipe) or pygame.sprite.collide_rect(player, lpipe):
+                game_over(screen, player, upper_pipes, lower_pipes, score)
             # remove pipes if it moves off-screen
             if upipe.rect.x < -upipe.rect.w:
                 upipe.kill()

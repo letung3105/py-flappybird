@@ -1,5 +1,4 @@
 import pygame
-from helpers import CustomSprite
 from itertools import cycle
 
 PLAYER_MAX_Y_VEL = 10
@@ -7,7 +6,7 @@ PLAYER_Y_ACC = 1
 PLAYER_Y_VEL_FLAP = -9
 
 
-class Player(CustomSprite):
+class Player(pygame.sprite.Sprite):
     """ player class support animations and player's actions """
     def __init__(self, images):
         super().__init__()
