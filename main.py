@@ -5,39 +5,45 @@ import sys
 from player import Player
 from pipe import Pipe
 
-# set fps and screen size
+# set fps and screen's size
 FPS = 30
+# in pixels
 SCREENWIDTH = 288
 SCREENHEIGHT = 512
 SCREENSIZE = (SCREENWIDTH, SCREENHEIGHT)
 
-# y-position of the ground
+# y-position of ground
 BASEY = SCREENHEIGHT * 0.8
-# size of gap  between the upper and lower pipe
+# gap's size of the upper pipe and lower pipe
 PIPEGAPSIZE = 100
 
-# Keep track of all images
-IMAGES = {}
-HITMASKS = {}
+IMAGES = {}  # contains all images' data used for the game
 
 
 def get_random_pipes(pipe_pos_x=SCREENWIDTH + 10):
+    """ generate a pair of pipes with random y-position """
+    # y-position of the gap
     gap_pos_y = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
+    # shift the gap to be closer to ground
     gap_pos_y += int(BASEY * 0.2)
     pipe_height = IMAGES['upipe'].get_height()
-    return [
+    return (
         Pipe(IMAGES['upipe'], pipe_pos_x, gap_pos_y - pipe_height),
         Pipe(IMAGES['lpipe'], pipe_pos_x, gap_pos_y + PIPEGAPSIZE)
-    ]
+    )
 
 
 def show_score(screen, score):
+    """ turns numeric score into sprites on screen """
     digits = [int(x) for x in str(score)]
     total_width = 0
 
+    # loop through all digits
+    # to calculate the total length of the number
     for digit in digits:
         total_width += IMAGES['digits'][digit].get_width()
 
+    # offset to center the number
     x_offset = (SCREENWIDTH - total_width) / 2
     for digit in digits:
         screen.blit(IMAGES['digits'][digit], [x_offset, SCREENHEIGHT * 0.1])
@@ -45,11 +51,13 @@ def show_score(screen, score):
 
 
 def game_over(screen, player, upper_pipes, lower_pipes, score):
+    """ show game over scene """
     clock = pygame.time.Clock()
     message = pygame.image.load('./sprites/gameover.png')
     message_pos_x = (SCREENWIDTH - message.get_width()) / 2
     message_pos_y = (SCREENHEIGHT - message.get_height()) / 2
     while True:
+        # Press esc to quit
         for event in pygame.event.get():
             if (event.type == pygame.locals.QUIT or
                     (event.type == pygame.locals.KEYDOWN and
@@ -72,7 +80,7 @@ def main():
     pygame.init()
     # set game's screen size
     screen = pygame.display.set_mode(SCREENSIZE)
-    # pygame's clock used to set FPS
+    # delay time to get constant fps
     clock = pygame.time.Clock()
 
     # current frame in 1 sec
@@ -81,11 +89,13 @@ def main():
     # background and base image
     IMAGES['background'] = pygame.image.load('./sprites/background-day.png').convert_alpha()
     IMAGES['base'] = pygame.image.load('./sprites/base.png').convert_alpha()
+
     # upper and lower pipes images
     IMAGES['upipe'] = pygame.transform.rotate(
         pygame.image.load('./sprites/pipe-green.png').convert_alpha(), 180
     )
     IMAGES['lpipe'] = pygame.image.load('./sprites/pipe-green.png').convert_alpha()
+
     # score's digits images
     IMAGES['digits'] = (
         pygame.image.load('./sprites/0.png').convert_alpha(),
@@ -103,6 +113,7 @@ def main():
     # initial pipes
     first_pipes = get_random_pipes()
     second_pipes = get_random_pipes(SCREENWIDTH + 10 + int(SCREENWIDTH / 2))
+
     # groups contain all upper and lower pipes
     upper_pipes = pygame.sprite.Group(first_pipes[0], second_pipes[0])
     lower_pipes = pygame.sprite.Group(first_pipes[1], second_pipes[1])
@@ -117,8 +128,7 @@ def main():
     score = 0
 
     while True:
-        # check for key presses
-        # specifically spacebar and up arrow
+        # check for spacebar and up arrow presses
         for evt in pygame.event.get():
             if (evt.type == pygame.locals.KEYDOWN and
                     (evt.key == pygame.locals.K_SPACE or
@@ -126,11 +136,10 @@ def main():
                 if player.rect.y > -1 * player.image.get_height():
                     player.flap()
 
-        # update player position
-        # and animate wing flap
+        # update player sprite
         player.update(frames)
 
-        # update all pipes position in group
+        # update all pipes sprite
         upper_pipes.update()
         lower_pipes.update()
 
@@ -142,8 +151,10 @@ def main():
         # loop through every pipes
         for upipe, lpipe in zip(upper_pipes, lower_pipes):
             # check if player crashed into the pipes
+            ## pixel bitmask collision
             if player.pixel_collide(upipe) or player.pixel_collide(lpipe):
                 game_over(screen, player, upper_pipes, lower_pipes, score)
+            ## rect collision
             # if pygame.sprite.collide_rect(player, upipe) or pygame.sprite.collide_rect(player, lpipe):
             #     game_over(screen, player, upper_pipes, lower_pipes, score)
             # remove pipes if it moves off-screen
@@ -170,10 +181,11 @@ def main():
         # put digits on screen based on score
         show_score(screen, score)
 
-        # refresh screen at given FPS
+        # updated frame counts and reset at 30
         frames += 1
         if frames % 30 == 0:
             frames = 1
+        # refresh screen at given FPS
         pygame.display.update()
         clock.tick(FPS)
 
