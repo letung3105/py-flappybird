@@ -87,7 +87,7 @@ def load_images():
 
 
 class CustomSprite(pygame.sprite.Sprite):
-    """pygame.Sprite with pixel bitmask collision detection"""
+    """ pygame.Sprite with pixel bitmask collision detection """
     def __init__(self):
         super().__init__()
 
@@ -100,7 +100,7 @@ class CustomSprite(pygame.sprite.Sprite):
                 mask[x].append(bool(self.image.get_at((x, y))[3]))
         return mask
 
-    """ check for collision with other based on  bitmask"""
+    """ check bitmask collision """
     def pixel_collide(self, other):
         # rectangle cross section of this sprite with other
         rect = self.rect.clip(other.rect)
