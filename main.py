@@ -94,7 +94,6 @@ def main():
             if lpipe.rect.x < -lpipe.rect.w:
                 lpipe.kill()
             if 0 < upipe.rect.x < 4:
-                print("New pipe")
                 pipes = get_random_pipes()
                 upper_pipes.add(pipes[0])
                 lower_pipes.add(pipes[1])
