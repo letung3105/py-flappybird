@@ -5,11 +5,10 @@ PIPE_X_VEL = -4
 
 
 class Pipe(pygame.sprite.Sprite):
-    """ stores pipe information """
+    ''' pipe data '''
     def __init__(self, image, pos_x, pos_y):
         super().__init__()
-        return
 
-    """ update pipe sprite """
+    ''' update pipe position '''
     def update(self):
         return
