@@ -2,7 +2,7 @@ import pygame
 import pygame.locals
 import random
 import sys
-from helpers import load_images
+from helpers import load_images, show_score, game_over
 from player import Player
 from pipe import Pipe
 
@@ -18,11 +18,12 @@ BASEY = SCREENHEIGHT * 0.8
 # gap's size of the upper pipe and lower pipe
 PIPEGAPSIZE = 100
 
-IMAGES = {}  # contains all images' data used for the game
+# all images' data used for the game
+IMAGES = {}
 
 
 def get_random_pipes(pipe_pos_x=SCREENWIDTH+10):
-    """ generate a pair of pipes with random y-position """
+    ''' generate a pair of pipes with random y-position '''
     # y-position of the gap
     gap_pos_y = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     # shift the gap to be closer to ground
@@ -77,17 +78,17 @@ def main():
 
         # check if player crashed into the ground
         if player.rect.bottom >= BASEY - 1:
-            game_over(screen, player, upper_pipes, lower_pipes, score)
+            game_over(screen, IMAGES, player, BASEY, upper_pipes, lower_pipes, score)
 
         # loop through every pipes
         for upipe, lpipe in zip(upper_pipes, lower_pipes):
             # check if player crashed into the pipes
-            ## pixel bitmask collision
-            if player.pixel_collide(upipe) or player.pixel_collide(lpipe):
-                game_over(screen, player, upper_pipes, lower_pipes, score)
+            ## pixel bitmask collision, only for CustomSprite
+            # if player.pixel_collide(upipe) or player.pixel_collide(lpipe):
+            #     game_over(screen, IMAGES, player, BASEY, upper_pipes, lower_pipes, score)
             ## rect collision
-            # if pygame.sprite.collide_rect(player, upipe) or pygame.sprite.collide_rect(player, lpipe):
-            #     game_over(screen, player, upper_pipes, lower_pipes, score)
+            if pygame.sprite.collide_rect(player, upipe) or pygame.sprite.collide_rect(player, lpipe):
+                game_over(screen, IMAGES, player, BASEY, upper_pipes, lower_pipes, score)
             # remove pipes if it moves off-screen
             if upipe.rect.x < -upipe.rect.w:
                 upipe.kill()
@@ -116,55 +117,13 @@ def main():
         screen.blit(IMAGES['base'], (0, BASEY))
 
         # put digits on screen based on score
-        show_score(screen, score)
+        show_score(screen, IMAGES['digits'], score)
 
         # updated frame counts and reset at 30
         frames += 1
         if frames % 30 == 0:
             frames = 1
         # refresh screen at given FPS
-        pygame.display.update()
-        clock.tick(FPS)
-
-
-def show_score(screen, score):
-    """ turns numeric score into sprites on screen """
-    digits = [int(x) for x in str(score)]
-    total_width = 0
-
-    # loop through all digits
-    # to calculate the total length of the number
-    for digit in digits:
-        total_width += IMAGES['digits'][digit].get_width()
-
-    # offset to center the number
-    x_offset = (SCREENWIDTH - total_width) / 2
-    for digit in digits:
-        screen.blit(IMAGES['digits'][digit], [x_offset, SCREENHEIGHT * 0.1])
-        x_offset += IMAGES['digits'][digit].get_width()
-
-
-def game_over(screen, player, upper_pipes, lower_pipes, score):
-    """ show game over scene """
-    clock = pygame.time.Clock()
-    message = pygame.image.load('./sprites/gameover.png')
-    message_pos_x = (SCREENWIDTH - message.get_width()) / 2
-    message_pos_y = (SCREENHEIGHT - message.get_height()) / 3
-    while True:
-        # Press esc to quit
-        for event in pygame.event.get():
-            if (event.type == pygame.locals.QUIT or
-                    (event.type == pygame.locals.KEYDOWN and
-                        event.key == pygame.locals.K_ESCAPE)):
-                pygame.quit()
-                sys.exit()
-        screen.blit(IMAGES['background'], (0, 0))
-        screen.blit(player.image, player.rect)
-        upper_pipes.draw(screen)
-        lower_pipes.draw(screen)
-        screen.blit(IMAGES['base'], (0, BASEY))
-        screen.blit(message, (message_pos_x, message_pos_y))
-        show_score(screen, score)
         pygame.display.update()
         clock.tick(FPS)
 
