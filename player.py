@@ -1,24 +1,19 @@
 import pygame
 from itertools import cycle
 
-# maximum downward velocity
-PLAYER_MAX_Y_VEL = 10
-# downward acceleration
-# value to increase velocity per frame
-PLAYER_Y_ACC = 1
-# velocity when flap
-PLAYER_Y_VEL_FLAP = -9
+PLAYER_MAX_Y_VEL = 10  # max downward velocity
+PLAYER_Y_ACC = 1  # acceleration constant
+PLAYER_Y_VEL_FLAP = -9  # flap instant velocity
 
 
 class Player(pygame.sprite.Sprite):
-    """ stores player information """
+    ''' player animations and actions '''
     def __init__(self, images):
         super().__init__()
-        return
 
-    """ update player position and animation """
+    ''' update sprites position and animation '''
     def update(self, current_frame):
-        return
 
+    ''' change instant velocity when flap '''
     def flap(self):
         return
