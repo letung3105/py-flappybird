@@ -1,5 +1,3 @@
-import pygame
-
 VEL_PIPE = -4
 
 class Pipe():
