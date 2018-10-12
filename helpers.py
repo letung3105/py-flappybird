@@ -1,25 +1,4 @@
-'''
-Helper classes and functions
-'''
 import pygame
-import random
-
-
-def show_score(display, images, score):
-    '''display score display'''
-    digits = [int(x) for x in str(score)]  # list of digits in score
-    total_width = 0
-
-    # loop through all digits
-    # to calculate the total width of the score
-    for digit in digits:
-        total_width += images[digit].get_width()
-
-    # offset to center the number
-    x_offset = (display.get_width() - total_width) / 2
-    for digit in digits:
-        display.blit(images[digit], [x_offset, display.get_height() * 0.1])
-        x_offset += images[digit].get_width()
 
 
 class CustomSprite(pygame.sprite.Sprite):
