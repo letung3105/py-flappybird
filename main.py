@@ -142,7 +142,7 @@ def main():
                     score += 1
                 # crash into pipes
                 if (player.rect.colliderect(upipe.rect)
-                    or player.rect.colliderect(lpipe.rect):
+                    or player.rect.colliderect(lpipe.rect)):
                     game_over = True
                     break
             # remove pipes objects when out of screen
