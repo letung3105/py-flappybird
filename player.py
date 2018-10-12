@@ -18,8 +18,10 @@ class Player():
     def update(self):
         if self.velocity < MAX_VELOCITY:
             self.velocity += ACCLERATION
-        self.image = self.images[next(self.animation_pattern)]
         self.rect.y += self.velocity
+
+    def animate(self):
+        self.image = self.images[next(self.animation_pattern)]
 
     def flap(self):
         self.velocity = FLAP_VELOCITY
