@@ -52,6 +52,8 @@ pipes = get_pipes()
 upper_pipes = [pipes['u']]
 lower_pipes = [pipes['l']]
 
+frames = 0
+
 while True:
     for evt in pygame.event.get():
         if evt.type == pygame.QUIT:
@@ -68,6 +70,10 @@ while True:
 
     if not game_over:
         player.update()
+        frames += 1
+        if frames == 4:
+            player.animate()
+            frames = 0
         if player.rect.bottom >= Y_BASE:
             game_over = True
 
