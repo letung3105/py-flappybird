@@ -89,7 +89,7 @@ def game_over(screen, images, basey, player, upper_pipes, lower_pipes, score):
         lower_pipes.draw(screen)
         screen.blit(images['base'], (0, basey))
         screen.blit(message, (message_pos_x, message_pos_y))
-        show_score(screen, score)
+        show_score(screen, images['digits'], score)
         pygame.display.update()
         clock.tick(30)
 
