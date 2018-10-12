@@ -8,12 +8,8 @@ from pipe import Pipe
 # screen size
 SCREEN_WIDTH = 288
 SCREEN_HEIGHT = 512
-# frame-per-second
-FPS = 30
-
-# load all images to a dictionary
-IMAGES = {}
-
+FPS = 30  # frame-per-second
+IMAGES = {}  # load all images to a dictionary
 Y_BASE = int(SCREEN_HEIGHT * 0.8)  # ground position from bottom of the screen
 GAP_SIZE = 100  # gap between upper pipe and lower pipe
 
@@ -26,8 +22,10 @@ def get_pipes(x_pos=SCREEN_WIDTH+10):
         int(Y_BASE * 0.2), int(Y_BASE * 0.8 - GAP_SIZE)
     )
     return {
-        'u': Pipe(IMAGES['upipe'], x_pos, gap_y_pos - pipe_height),  # upper pipe
-        'l': Pipe(IMAGES['lpipe'], x_pos, gap_y_pos + GAP_SIZE)  # lower pipe
+        # upper pipe
+        'u': Pipe(IMAGES['upipe'], x_pos, gap_y_pos - pipe_height),
+        # lower pipe
+        'l': Pipe(IMAGES['lpipe'], x_pos, gap_y_pos + GAP_SIZE)
     }
 
 
@@ -47,8 +45,6 @@ def show_score(display, score):
         x_offset += IMAGES['digits'][digit].get_width()
 
 
-
-
 def main():
     global IMAGES
     pygame.init()  # init pygame
@@ -56,7 +52,6 @@ def main():
     display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()  # used to get fixed FPS
     game_over = False  # check if player crashes
-
     # load all images used
     IMAGES = {
         'player': (
@@ -69,7 +64,9 @@ def main():
         'base': pygame.image.load("./sprites/base.png"),
         'game_over': pygame.image.load("./sprites/gameover.png"),
         'lpipe': pygame.image.load("./sprites/pipe-green.png"),
-        'upipe': pygame.transform.rotate(pygame.image.load("./sprites/pipe-green.png"), 180),
+        'upipe': pygame.transform.rotate(
+            pygame.image.load("./sprites/pipe-green.png"), 180
+        ),
         'digits': (
             pygame.image.load("./sprites/0.png"),
             pygame.image.load("./sprites/1.png"),
@@ -83,26 +80,24 @@ def main():
             pygame.image.load("./sprites/9.png"),
         )
     }
-
     animation_pattern = cycle([0,1,2,1])  # 0 -> 1 -> 2 -> 1 -> ...
     player = Player(
         IMAGES['player'],
         animation_pattern,
-        SCREEN_WIDTH / 3 - IMAGES['player'][0].get_width() / 2,  # placed in 1/3 the width of the screen
-        (SCREEN_HEIGHT - IMAGES['player'][0].get_height()) / 2  # placed in 1/2 the height of the screen
+        # placed in 1/3 the width of the screen
+        SCREEN_WIDTH / 3 - IMAGES['player'][0].get_width() / 2,
+        # placed in 1/2 the height of the screen
+        (SCREEN_HEIGHT - IMAGES['player'][0].get_height()) / 2
     )
-
     # first pipes
     pipes = get_pipes()
     # keep track of all pipes
     upper_pipes = [pipes['u']]
     lower_pipes = [pipes['l']]
-
     # counting frames for animation
     frames = 0
-
+    # counting score
     score = 0
-
     # game loop
     while True:
         # get evt
@@ -122,7 +117,7 @@ def main():
                 else:
                     if evt.key == pygame.K_SPACE:
                         player.flap()
-
+        # only update sprites if game is not over
         if not game_over:
             player.update()  # update player position
             # animate wing flaps
@@ -133,7 +128,7 @@ def main():
             # crash into the ground
             if player.rect.bottom >= Y_BASE:
                 game_over = True
-
+            # loop through all pipes
             for upipe, lpipe in zip(upper_pipes, lower_pipes):
                 # update pipes position
                 upipe.update()
@@ -146,19 +141,15 @@ def main():
                 if upipe.rect.centerx <= player.rect.centerx < upipe.rect.centerx + 4:
                     score += 1
                 # crash into pipes
-                if player.rect.colliderect(upipe.rect):
-                    game_over = True
-                    break
-                if player.rect.colliderect(lpipe.rect):
+                if (player.rect.colliderect(upipe.rect)
+                    or player.rect.colliderect(lpipe.rect):
                     game_over = True
                     break
             # remove pipes objects when out of screen
             # memory optimization
             if upper_pipes[0].rect.x < -IMAGES['upipe'].get_width():
                 del upper_pipes[0]
-            if lower_pipes[0].rect.x < -IMAGES['upipe'].get_width():
                 del lower_pipes[0]
-
         # display images on screen
         display.blit(IMAGES['background'], (0, 0))
         display.blit(player.image, player.rect)
@@ -167,13 +158,12 @@ def main():
             display.blit(lpipe.image, lpipe.rect)
         show_score(display, score)
         display.blit(IMAGES['base'], (0, Y_BASE))
-
+        # show game over message if player crashed
         if game_over:
             display.blit(IMAGES['game_over'], (
                 (SCREEN_WIDTH - IMAGES['game_over'].get_width()) / 2,
                 (SCREEN_HEIGHT - IMAGES['game_over'].get_height()) / 2,
             ))
-
         # update game frame
         pygame.display.update()
         clock.tick(FPS)  # delay time for constant fps
