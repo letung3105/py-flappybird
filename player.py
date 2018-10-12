@@ -1,6 +1,3 @@
-import pygame
-
-
 ACC = 1  # acceleration rate
 VEL_FLAP = -9  # flap instant velocity
 VEL_MAX = 10  # max velocity
