@@ -1,6 +1,7 @@
+from helpers import CustomSprite
 VEL_PIPE = -4
 
-class Pipe():
+class Pipe(CustomSprite):
     '''update position'''
     def __init__(self, image, x, y):
         super().__init__()

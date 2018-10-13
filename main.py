@@ -60,7 +60,7 @@ def main():
             pygame.image.load("./sprites/bluebird-downflap.png"),
         ),
 
-        'background': pygame.image.load("./sprites/background-day.png"),
+        'background': pygame.image.load("./sprites/background-night.png"),
         'base': pygame.image.load("./sprites/base.png"),
         'game_over': pygame.image.load("./sprites/gameover.png"),
         'lpipe': pygame.image.load("./sprites/pipe-green.png"),
@@ -115,7 +115,7 @@ def main():
                         sys.exit()
                 # move player when press spacebar
                 else:
-                    if evt.key == pygame.K_SPACE:
+                    if evt.key == pygame.K_SPACE or evt.key == pygame.K_UP:
                         player.flap()
         # only update sprites if game is not over
         if not game_over:
@@ -141,8 +141,8 @@ def main():
                 if upipe.rect.centerx <= player.rect.centerx < upipe.rect.centerx + 4:
                     score += 1
                 # crash into pipes
-                if (player.rect.colliderect(upipe.rect)
-                    or player.rect.colliderect(lpipe.rect)):
+                if (player.pixel_collide(upipe)
+                    or player.pixel_collide(lpipe)):
                     game_over = True
                     break
             # remove pipes objects when out of screen
