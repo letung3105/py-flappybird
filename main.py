@@ -141,6 +141,8 @@ def main():
                 if upipe.rect.centerx <= player.rect.centerx < upipe.rect.centerx + 4:
                     score += 1
                 # crash into pipes
+                # objects class must inherit from helpers.CustomSprite
+                # to use pixel_collide() function
                 if (player.pixel_collide(upipe)
                     or player.pixel_collide(lpipe)):
                     game_over = True
